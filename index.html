@@ -241,7 +241,7 @@ JEITO DE FALAR:
         }
     ];
 
-    async function sendMessage() {
+async function sendMessage() {
         const apiKey = document.getElementById('apiKey').value.trim();
         const input = document.getElementById('userInput');
         const text = input.value.trim();
@@ -264,7 +264,7 @@ JEITO DE FALAR:
                     'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: 'llama-3.1-8b-instant',
+                    model: 'llama-3.3-70b-versatile', // Modelo atualizado e de alta compatibilidade
                     messages: historico,
                     max_tokens: 100,
                     temperature: 0.75
@@ -272,14 +272,20 @@ JEITO DE FALAR:
             });
 
             const data = await res.json();
-            const rockyText = data.choices[0].message.content.trim();
+            
+            if (data.error) {
+                appendMessage('rocky', "Erro na API: " + data.error.message);
+                return;
+            }
 
+            const rockyText = data.choices[0].message.content.trim();
             historico.push({ role: "assistant", content: rockyText });
             appendMessage('rocky', rockyText);
             tocarSomOcarina(rockyText);
 
         } catch (err) {
-            appendMessage('rocky', "Erro na conexao com a Groq!");
+            appendMessage('rocky', "Erro de conexao (CORS ou rede). Verifique a chave da Groq!");
+            console.error(err);
         }
     }
 
